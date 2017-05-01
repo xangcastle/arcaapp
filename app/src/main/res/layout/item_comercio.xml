@@ -95,7 +95,7 @@
                     android:gravity="left"
                     android:text="Direccion"
                     android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                    android:textColor="@color/light_blue_800"
+                    android:textColor="@color/light_blue_A100"
                     app:layout_constraintLeft_toLeftOf="@+id/ratingBar"
                     app:layout_constraintTop_toBottomOf="@+id/comercio_direccion" />
 

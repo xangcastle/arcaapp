@@ -161,6 +161,7 @@ public class LoginActivity extends AppCompatActivity implements
                 try {
                     JSONObject jresultado=new JSONObject(resultado);
                     if (jresultado.getInt("code")==200) {
+                        usuario.codigo= jresultado.getString("codigo");
                         usuario.id_usuario = jresultado.getInt("id_usuario");
                         usuario.save();
                     }else

@@ -7,11 +7,16 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SearchView;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -21,6 +26,7 @@ import android.widget.Toast;
 import com.activeandroid.query.Select;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
+import com.squareup.okhttp.internal.Util;
 import com.twine.arca_app.adapters.CategoriaComercioAdapter;
 import com.twine.arca_app.adapters.ComercioAdapter;
 import com.twine.arca_app.adapters.ComercioAdapter_;
@@ -84,7 +90,7 @@ public class ComerciosFragment extends Fragment {
 
         restClient.setRestErrorHandler(myErrorhandler);
         session=new SessionManager(getContext());
-
+        setHasOptionsMenu(true);
 
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_comercios, container, false);
@@ -149,6 +155,27 @@ public class ComerciosFragment extends Fragment {
 
         adapter.notifyDataSetChanged();
     }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        //inflater.inflate(R.menu.menu_main_tab, menu);
+        MenuItem searchMenuItem = menu.findItem(R.id.search);
+        final SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchMenuItem);
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                searchView.clearFocus();
+                return true;
+            }
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                adapter.getFilter().filter(newText);
+                return true;
+            }
+        });
+        super.onCreateOptionsMenu(menu,inflater);
+    }
+
 
     @ItemClick(R.id.gridview)
     void gridItemClick(int position){
@@ -398,6 +425,7 @@ public class ComerciosFragment extends Fragment {
             String respuesta=restClient.save_cupon(
                     String.valueOf(cupon.descuento.id_descuento),
                     String.valueOf(cupon.empleado.id_empleado),
+                    String.valueOf(Utilidades.db.getUsuario().codigo),
                     String.valueOf(cupon.codigo),
                     new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(cupon.creado));
             if(respuesta!=null){

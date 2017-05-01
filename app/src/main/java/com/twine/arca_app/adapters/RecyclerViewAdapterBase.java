@@ -17,9 +17,11 @@ import java.util.List;
  */
 
 public abstract class RecyclerViewAdapterBase<T, V extends View & ViewWrapper.Binder<T>>
-        extends RecyclerView.Adapter<ViewWrapper<T, V>> {
+        extends RecyclerView.Adapter<ViewWrapper<T, V>>
+        implements Filterable{
 
     protected List<T> items = new ArrayList<T>();
+    protected List<T> items_bk = new ArrayList<T>();
 
     @Override
     public final ViewWrapper<T, V> onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -47,6 +49,7 @@ public abstract class RecyclerViewAdapterBase<T, V extends View & ViewWrapper.Bi
 
     public void addAll(Collection<T> collection) {
         items.addAll(collection);
+        items_bk.addAll(collection);
         notifyDataSetChanged();
     }
 

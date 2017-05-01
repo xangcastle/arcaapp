@@ -7,7 +7,9 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.TabLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 
 import android.support.v4.app.Fragment;
@@ -36,7 +38,9 @@ import org.androidannotations.annotations.EActivity;
 @EActivity
 public class MainTabActivity extends AppCompatActivity
 implements ComerciosFragment.OnFragmentInteractionListener,
-DescuentosFragment.OnFragmentInteractionListener, GoogleApiClient.OnConnectionFailedListener {
+        PerfilFragment.OnFragmentInteractionListener,
+        DescuentosFragment.OnFragmentInteractionListener,
+        GoogleApiClient.OnConnectionFailedListener {
 
     private GoogleApiClient mGoogleApiClient;
     /**
@@ -181,6 +185,9 @@ DescuentosFragment.OnFragmentInteractionListener, GoogleApiClient.OnConnectionFa
                 case 1:
                     DescuentosFragment tap2=new DescuentosFragment_();
                     return tap2;
+                case 2:
+                    PerfilFragment tap3=new PerfilFragment_();
+                    return tap3;
                 default:
                     return null;
             }
@@ -189,7 +196,7 @@ DescuentosFragment.OnFragmentInteractionListener, GoogleApiClient.OnConnectionFa
         @Override
         public int getCount() {
             // Show 3 total pages.
-            return 2;
+            return 3;
         }
 
         @Override
@@ -199,8 +206,8 @@ DescuentosFragment.OnFragmentInteractionListener, GoogleApiClient.OnConnectionFa
                     return "COMERCIOS";
                 case 1:
                     return "DESCUENTOS";
-                //case 2:
-                //    return "ESTADISTICAS";
+                case 2:
+                    return "PERFIL";
             }
             return null;
         }

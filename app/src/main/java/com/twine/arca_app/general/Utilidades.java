@@ -163,6 +163,13 @@ public  class Utilidades {
                     .where("pk_categoria =?",categoria.getId())
                     .execute();
         }
+        public static List<Comercio> getComerciobyNombre(String filtro){
+            return new Select().from(Comercio.class)
+                    .where("nombre LIKE ?", new String[]{'%' + filtro + '%'})
+                    .or("telefono LIKE ?",new String[]{'%' + filtro + '%'})
+                    .or("direccion LIKE ?",new String[]{'%' + filtro + '%'})
+                    .execute();
+        }
         public static List<Cupon> getCuponesPendientesCarga(){
             return new Select().from(Cupon.class)
                     .where("id_cupon=?",0)

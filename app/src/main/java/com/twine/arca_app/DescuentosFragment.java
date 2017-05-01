@@ -98,13 +98,15 @@ public class DescuentosFragment extends Fragment {
     void recargarLista(){
         adapter.notifyDataSetChanged();
     }
-    @Click(R.id.readQR)
+
+    /*@Click(R.id.readQR)
     void click_readQR(){
         IntentIntegrator integrator = new IntentIntegrator((Activity) getContext());
         integrator.setDesiredBarcodeFormats(integrator.QR_CODE_TYPES);
         Intent scanIntent=integrator.createScanIntent();
         startActivityForResult(scanIntent,IntentIntegrator.REQUEST_CODE);
-    }
+    }*/
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if(IntentIntegrator.REQUEST_CODE==requestCode && (resultCode == Activity.RESULT_OK)){
@@ -237,6 +239,7 @@ public class DescuentosFragment extends Fragment {
             String respuesta=restClient.save_cupon(
                     String.valueOf(cupon.descuento.id_descuento),
                     String.valueOf(cupon.empleado.id_empleado),
+                    String.valueOf(Utilidades.db.getUsuario().codigo),
                     String.valueOf(cupon.codigo),
                     new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(cupon.creado));
             if(respuesta!=null){

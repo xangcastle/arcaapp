@@ -2,6 +2,7 @@ package com.twine.arca_app.adapters;
 
 import android.content.Context;
 import android.view.ViewGroup;
+import android.widget.Filter;
 
 import com.twine.arca_app.models.Comercio_Categoria;
 import com.twine.arca_app.models.Cupon;
@@ -27,4 +28,8 @@ public class CategoriaComercioAdapter extends RecyclerViewAdapterBase<Comercio_C
         return CategoriaComercioItemView_.build(context);
     }
 
+    @Override
+    public Filter getFilter() {
+        return null;
+    }
 }

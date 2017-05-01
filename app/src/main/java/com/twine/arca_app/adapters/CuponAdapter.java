@@ -31,4 +31,8 @@ public class CuponAdapter extends RecyclerViewAdapterBase<Cupon, CuponItemView> 
         return CuponItemView_.build(context);
     }
 
+    @Override
+    public Filter getFilter() {
+        return null;
+    }
 }

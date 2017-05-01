@@ -31,6 +31,7 @@ public interface RestClient extends RestClientErrorHandling, RestClientHeaders {
     @Post("/arca/save_cupon/")
     String save_cupon(@Field String descuento,
                       @Field String id_empleado,
+                      @Field String codigo_usuario,
                       @Field String codigo,
                       @Field String creado);
 

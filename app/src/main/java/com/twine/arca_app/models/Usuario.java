@@ -30,6 +30,8 @@ public class Usuario extends Model {
     public String telefono;
     @Column(name = "activo")
     public boolean activo;
+    @Column(name = "codigo")
+    public String codigo;
 
     public  String getFullname(){
         return nombre + " " + apellido;
