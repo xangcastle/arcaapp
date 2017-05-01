@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#3F51B5</color>
-    <color name="colorPrimaryDark">#303F9F</color>
-    <color name="colorAccent">#FF4081</color>
+    <color name="colorPrimary">#0288D1</color>
+    <color name="colorPrimaryDark">#0277BD</color>
+    <color name="colorAccent">#263238</color>
 
     <color name="accent">#FFFFFF</color>
     <color name="jet">#222222</color>
@@ -217,7 +217,7 @@
     <color name="purple_A700">#AA00FF</color>
 
     <color name="blue_50">#E3F2FD</color>
-    <color name="blue_100">#BBDEFB</color>
+    <color name="blue_100">#c6a5a7a9</color>
     <color name="blue_200">#90CAF9</color>
     <color name="blue_300">#64B5F6</color>
     <color name="blue_400">#42A5F5</color>
@@ -291,4 +291,7 @@
     <color name="engro">#000000</color>
     <color name="blanco">#FFFFFF</color>
     <color name="white">#FFFFFF</color>
+    <color name="transparent_darck">#9d414141</color>
+
+    <color name="black_overlay">#66000000</color>
 </resources>

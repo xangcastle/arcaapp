@@ -15,14 +15,6 @@
         {
           "client_id": "730334026573-r34fa81bs1tb9rljf9jss17p44jkt6fc.apps.googleusercontent.com",
           "client_type": 3
-        },
-        {
-          "client_id": "730334026573-u972qsmgo33pkkpe6iklonrp0vhajftv.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.twine.arca_app",
-            "certificate_hash": "9c81bc9cc3d11503a042657bc470e98773fdd025"
-          }
         }
       ],
       "api_key": [

@@ -44,4 +44,13 @@ public class Comercio extends Model {
                 .where("activo=?",true)
                 .execute();
     }
+    public int rating(){
+        Comercio_Rating comercio_rating= new Select().from(Comercio_Rating.class)
+                .where("pk_comercio=?",this.getId()).executeSingle();
+        if(comercio_rating==null || comercio_rating.rating<1)
+            return 1;
+        else
+            return comercio_rating.rating;
+
+    }
 }

@@ -9,6 +9,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RatingBar;
 import android.widget.TextView;
 
 import com.twine.arca_app.ComercioActivity_;
@@ -32,11 +33,16 @@ public class ComercioItemView extends LinearLayout implements ViewWrapper.Binder
 
     @ViewById(R.id.comercio_nombre)
     TextView comercio_nombre;
-
+    @ViewById(R.id.comercio_direccion)
+    TextView comercio_direccion;
+    @ViewById(R.id.comercio_telefono)
+    TextView comercio_telefono;
     @ViewById(R.id.imageView)
     ImageView imageView;
-
-
+    @ViewById(R.id.baner)
+    ImageView baner;
+    @ViewById(R.id.ratingBar)
+    RatingBar ratingBar;
 
     @ViewById(R.id.cardView)
     CardView cardView;
@@ -52,9 +58,24 @@ public class ComercioItemView extends LinearLayout implements ViewWrapper.Binder
         if(model.nombre!=null){
             comercio_nombre.setText(model.nombre);
         }
+        if(model.direccion!=null){
+            comercio_direccion.setText(model.direccion);
+        }
+        if(model.telefono!=null){
+            comercio_telefono.setText(model.telefono);
+        }
         Utilidades.cargarImageView(imageView,
-                Utilidades.BASE_URL + model.logo,
+                Utilidades.BASE_URL+model.logo,
                 R.drawable.shop);
+        Utilidades.cargarImageView(baner,
+                Utilidades.BASE_URL+model.baner,
+                R.drawable.backgroundbaner);
+
+        if(model.rating()==0)
+            ratingBar.setRating(1);
+        else
+            ratingBar.setRating(model.rating());
+
         cardView.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {

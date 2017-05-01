@@ -4,7 +4,7 @@ xmlns:tools="http://schemas.android.com/tools"
 android:id="@+id/main_layout"
 android:layout_width="match_parent"
 android:layout_height="match_parent"
-android:background="@color/blue_grey_700"
+android:background="#0099cc"
 android:orientation="vertical"
 android:weightSum="4"
 tools:context="com.twine.arca_app.LoginActivity">
@@ -64,7 +64,7 @@ tools:context="com.twine.arca_app.LoginActivity">
     android:layout_width="fill_parent"
     android:layout_height="0dp"
     android:layout_weight="1"
-    android:background="@color/blue_grey_900">
+    android:background="@color/colorPrimaryDark">
 
     <com.google.android.gms.common.SignInButton
         android:id="@+id/sign_in_button"

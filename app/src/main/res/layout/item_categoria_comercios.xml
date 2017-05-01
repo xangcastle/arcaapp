@@ -4,15 +4,17 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_margin="5dp">
+    <!--
     <TextView
         android:id="@+id/NombreCategoria"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Catengoria"
-        android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium" />-->
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@id/NombreCategoria"/>
+        android:layout_height="match_parent"/>
+        <!--android:layout_below="@id/NombreCategoria"/> -->
+
 </RelativeLayout>

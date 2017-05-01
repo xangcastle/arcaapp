@@ -28,27 +28,32 @@
             android:value="1" />
         <meta-data
             android:name="AA_MODELS"
-            android:value="com.twine.arca_app.models.Usuario,
-            com.twine.arca_app.models.Comercio,
-            com.twine.arca_app.models.Comercio_Categoria,
-            com.twine.arca_app.models.Descuento,
-            com.twine.arca_app.models.Cupon,
-            com.twine.arca_app.models.Empleado,
-            com.twine.arca_app.models.Producto" />
+            android:value="com.twine.arca_app.models.Usuario,             com.twine.arca_app.models.Comercio,             com.twine.arca_app.models.Comercio_Categoria,             com.twine.arca_app.models.Comercio_Rating,             com.twine.arca_app.models.Descuento,             com.twine.arca_app.models.Cupon,             com.twine.arca_app.models.Empleado,             com.twine.arca_app.models.Producto" />
 
         <activity
-            android:name=".MainActivity_"
-            android:theme="@style/AppTheme.Dark">
+            android:name=".SplashScreenActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:label="@string/title_activity_splash_screen"
+            android:theme="@style/FullscreenTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".MainTabActivity_"
+            android:label="@string/title_activity_main_tab"
+            android:theme="@style/AppTheme.NoActionBar">
+        </activity>
+        <activity
+            android:name=".MainActivity_"
+            android:theme="@style/AppTheme.Dark"></activity>
         <activity
             android:name=".LoginActivity_"
             android:label="@string/title_activity_login"
-            android:theme="@style/Theme.AppCompat.NoActionBar" />
+            android:theme="@style/AppTheme.NoActionBar" />
 
         <!--
         <activity
@@ -69,7 +74,8 @@
         <activity
             android:name=".ComercioActivity_"
             android:label="@string/title_activity_comercio"
-            android:theme="@style/AppTheme.Dark" />
+            android:theme="@style/AppTheme.NoActionBar"/>
+
     </application>
 
 </manifest>

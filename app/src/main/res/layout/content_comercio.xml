@@ -6,7 +6,8 @@
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context="com.twine.arca_app.ComercioActivity"
-    tools:showIn="@layout/activity_comercio">
+    tools:showIn="@layout/activity_comercio"
+    android:background="@color/blue_grey_200">
 
     <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
@@ -115,6 +116,7 @@
             android:stepSize="1.0"
             android:rating="2.0"
             style="?android:attr/ratingBarStyleIndicator"
+            android:theme="@style/RatingBar"
             android:isIndicator="false"
             android:layout_marginRight="8dp"
             app:layout_constraintRight_toRightOf="parent"

@@ -178,16 +178,16 @@ public class LoginActivity extends AppCompatActivity implements
     @UiThread
     void handleSignInResult(Boolean success){
         if(success){
-            Intent localIntent = new Intent(LoginActivity.this, MainActivity_.class);
+            Intent localIntent = new Intent(LoginActivity.this, MainTabActivity_.class);
             LoginActivity.this.startActivity(localIntent);
             LoginActivity.this.finish();
         }else {
-            Auth.GoogleSignInApi.signOut(mGoogleApiClient).setResultCallback(
+            /*Auth.GoogleSignInApi.signOut(mGoogleApiClient).setResultCallback(
                     new ResultCallback<Status>() {
                         @Override
                         public void onResult(Status status) {
                         }
-                    });
+                    });*/
             Toast.makeText(this,"No fue posible autenticar\nIntentelo nuevamente",Toast.LENGTH_LONG).show();
         }
     }

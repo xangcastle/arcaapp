@@ -26,8 +26,8 @@ import java.util.List;
 @EViewGroup(R.layout.item_categoria_comercios)
 public class CategoriaComercioItemView extends LinearLayout implements ViewWrapper.Binder<Comercio_Categoria> {
 
-    @ViewById(R.id.NombreCategoria)
-    TextView NombreCategoria;
+    //@ViewById(R.id.NombreCategoria)
+    //TextView NombreCategoria;
 
     @ViewById(R.id.recyclerView)
     RecyclerView recyclerView;
@@ -42,7 +42,7 @@ public class CategoriaComercioItemView extends LinearLayout implements ViewWrapp
     @Override
     public void onBind(Comercio_Categoria model) {
         if(model.nombre!=null){
-            NombreCategoria.setText(model.nombre);
+            //NombreCategoria.setText(model.nombre);
         }
         adapter=new ComercioAdapter(getContext());
         List<Comercio> comercios = Utilidades.db.getComerciobyCategoria(model);

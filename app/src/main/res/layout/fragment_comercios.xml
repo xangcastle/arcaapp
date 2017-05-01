@@ -1,21 +1,42 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.twine.arca_app.ComerciosFragment">
+    tools:context="com.twine.arca_app.ComerciosFragment"
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/recyclerView"
+    >
+    <!--android:paddingBottom="60dp"-->
+
+
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:orientation="vertical">
 
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/readQR"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="@dimen/fab_margin"
-        app:srcCompat="@drawable/qrcodeicon" />
+        <Button
+            android:id="@+id/btnCategorias"
+            style="@style/Widget.AppCompat.Button.Borderless.Colored"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Categoria" />
 
-</FrameLayout>
+        <android.support.v7.widget.RecyclerView android:id="@+id/recyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+             />
+       <!-- <GridView
+            android:id="@+id/gridview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:numColumns="1"
+            android:horizontalSpacing="@dimen/espacio_grilla"
+            />-->
+
+    </LinearLayout>
+
+</RelativeLayout>

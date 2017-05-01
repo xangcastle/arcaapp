@@ -2,27 +2,36 @@ package com.twine.arca_app;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.GridView;
 import android.widget.Toast;
 
 import com.activeandroid.query.Select;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 import com.twine.arca_app.adapters.CategoriaComercioAdapter;
+import com.twine.arca_app.adapters.ComercioAdapter;
+import com.twine.arca_app.adapters.ComercioAdapter_;
 import com.twine.arca_app.adapters.CuponAdapter;
 import com.twine.arca_app.adapters.DividerItemDecoration;
+import com.twine.arca_app.adapters.GridComercioAdapter;
+import com.twine.arca_app.general.SessionManager;
 import com.twine.arca_app.general.Utilidades;
 import com.twine.arca_app.models.Comercio;
 import com.twine.arca_app.models.Comercio_Categoria;
+import com.twine.arca_app.models.Comercio_Rating;
 import com.twine.arca_app.models.Cupon;
 import com.twine.arca_app.models.Descuento;
 import com.twine.arca_app.models.Empleado;
@@ -33,6 +42,7 @@ import org.androidannotations.annotations.Background;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EFragment;
+import org.androidannotations.annotations.ItemClick;
 import org.androidannotations.annotations.UiThread;
 import org.androidannotations.annotations.ViewById;
 import org.androidannotations.rest.spring.annotations.RestService;
@@ -41,6 +51,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -53,9 +64,15 @@ public class ComerciosFragment extends Fragment {
     @Bean
     MyRestErrorHandler myErrorhandler;
     @ViewById(R.id.recyclerView)
-    RecyclerView recyclerView;
-    @Bean
-    CategoriaComercioAdapter adapter;
+    RecyclerView lista;
+    @ViewById(R.id.btnCategorias)
+    Button btnCategorias;
+
+    ComercioAdapter adapter;
+
+    SessionManager session;
+    List<Comercio> comercios;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -64,40 +81,121 @@ public class ComerciosFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
         restClient.setRestErrorHandler(myErrorhandler);
+        session=new SessionManager(getContext());
+
+
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_comercios, container, false);
     }
+
     @AfterViews
     void cargaInicial(){
+        String categoria_id=session.getSharedValue("categoria_id");
+        if(categoria_id==null || categoria_id.equals("0"))
+            btnCategorias.setText("CATEGORIA: TODAS");
         sincronizar();
     }
     @AfterViews
     void bindAdapter() {
-        adapter=new CategoriaComercioAdapter(getContext());
-        List<Comercio_Categoria> categorias = Utilidades.db.getCategorias();
-        adapter.addAll(categorias);
+        String categoria_id=session.getSharedValue("categoria_id");
+        if(categoria_id==null) {
+            session.saveSharedValue("categoria_id", "0");
+            categoria_id="0";
+        }
 
-        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
-        recyclerView.setLayoutManager(layoutManager);
-        recyclerView.setItemAnimator(new DefaultItemAnimator());
-        recyclerView.setAdapter(adapter);
+        Comercio_Categoria categoria = new Select().from(Comercio_Categoria.class)
+                .where("id_categoria=?", Long.parseLong(categoria_id)).executeSingle();
+
+        if(categoria==null || categoria.id_categoria==0){
+            comercios = Utilidades.db.getComercios();
+        }else
+            comercios=Utilidades.db.getComerciobyCategoria(categoria);
+
+
+        adapter=new ComercioAdapter(getContext());
+        adapter.addAll(comercios);
+        lista.setHasFixedSize(true);
+
+        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(
+                                                        getContext(),
+                                                        LinearLayoutManager.VERTICAL,
+                                                        false);
+        lista.setLayoutManager(layoutManager);
+        lista.setItemAnimator(new DefaultItemAnimator());
+        lista.addItemDecoration(new DividerItemDecoration(getContext(), LinearLayoutManager.VERTICAL));
+        lista.setAdapter(adapter);
+
     }
     @UiThread
     void refrescarLista(){
-        List<Comercio_Categoria> categorias = Utilidades.db.getCategorias();
-        adapter.clear();
-        adapter.addAll(categorias);
+        String categoria_id=session.getSharedValue("categoria_id");
+        if(categoria_id==null)
+            session.saveSharedValue("categoria_id","0");
+
+        Comercio_Categoria categoria = new Select().from(Comercio_Categoria.class)
+                .where("id_categoria=?", Long.parseLong(categoria_id)).executeSingle();
+
+        comercios.clear();
+        List<Comercio> comerciotmp;
+        if(categoria==null || categoria.id_categoria==0){
+            comerciotmp = Utilidades.db.getComercios();
+        }else
+            comerciotmp=Utilidades.db.getComerciobyCategoria(categoria);
+        for (Comercio comercio:comerciotmp) {
+            comercios.add(comercio);
+        }
+
         adapter.notifyDataSetChanged();
     }
 
-    @Click(R.id.readQR)
+    @ItemClick(R.id.gridview)
+    void gridItemClick(int position){
+        Comercio comercio=comercios.get(position);
+        Intent intent = new Intent(getContext(), ComercioActivity_.class);
+        intent.putExtra("id_comercio", comercio.getId());
+        getContext().startActivity(intent);
+    }
+
+    @Click(R.id.btnCategorias)
+    void btnCategorias_Click(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        final List<Comercio_Categoria> categorias=Utilidades.db.getCategorias();
+        List<String> strCategorias =new ArrayList<>();
+        for (Comercio_Categoria catetoria:categorias) {
+            if(catetoria.id_categoria==0)
+                strCategorias.add("TODAS");
+            else
+                strCategorias.add(catetoria.nombre.toUpperCase());
+        }
+
+        CharSequence[] items= strCategorias.toArray(new CharSequence[strCategorias.size()]);
+        builder.setTitle(R.string.slect_categoria)
+                .setItems(items, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        if(categorias.get(which).id_categoria==0)
+                            btnCategorias.setText("CATEGORIA: TODAS");
+                        else
+                            btnCategorias.setText("CATEGORIA: " + categorias.get(which).nombre.toUpperCase());
+                        session.saveSharedValue("categoria_id",
+                                String.valueOf(categorias.get(which).id_categoria));
+                        refrescarLista();
+                    }
+                });
+        AlertDialog dialog = builder.create();
+        dialog.show();
+
+
+    }
+
+    /*@Click(R.id.readQR)
     void click_readQR(){
         IntentIntegrator integrator = new IntentIntegrator((Activity) getContext());
         integrator.setDesiredBarcodeFormats(integrator.QR_CODE_TYPES);
         Intent scanIntent=integrator.createScanIntent();
         startActivityForResult(scanIntent,IntentIntegrator.REQUEST_CODE);
-    }
+    }*/
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if(IntentIntegrator.REQUEST_CODE==requestCode && (resultCode == Activity.RESULT_OK)){
@@ -200,6 +298,10 @@ public class ComerciosFragment extends Fragment {
                     comercio.id_comercio=jcomercio.getInt("id");
                     comercio.nombre=jcomercio.getString("nombre");
 
+
+
+
+
                     if (jcomercio.has("direccion"))
                         comercio.direccion=jcomercio.getString("direccion");
                     if (jcomercio.has("telefono"))
@@ -215,6 +317,21 @@ public class ComerciosFragment extends Fragment {
 
                     comercio.categoria=categoria;
                     comercio.save();
+
+                    Comercio_Rating rating=new Select().from(Comercio_Rating.class)
+                            .where("pk_comercio").executeSingle();
+
+                    if(rating==null)
+                        rating=new Comercio_Rating();
+                    rating.comercio=comercio;
+
+                    if(jcomercio.has("rating")&&!jcomercio.isNull("rating"))
+                        rating.rating=jcomercio.getInt("rating");
+                    else
+                        rating.rating=1;
+
+                    rating.save();
+
                     if(esNuevo)
                         refrescarLista();
 

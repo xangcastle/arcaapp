@@ -48,7 +48,7 @@ public  class Utilidades {
     public final static int BLACK = 0xFF000000;
     public final static int WIDTH = 400;
     public final static int HEIGHT = 400;
-    public final static String BASE_URL="http://192.168.252.1:8000";
+    public final static String BASE_URL="http://192.168.232.1:8000";
     //public final static String BASE_URL="http://demos.deltacopiers.com";
     public static boolean is_autenticado(Context context){
         Usuario usuario=new Select().from(Usuario.class).where("activo=?",true).executeSingle();
@@ -129,8 +129,7 @@ public  class Utilidades {
                 Picasso picaso= Picasso.with(imageView.getContext());
                 picaso.load(URL)
                         .error(drawableid)
-                        .placeholder(drawableid)
-                        .resize(400, 400).into(imageView);
+                        .placeholder(drawableid).into(imageView);
             }
 
         } catch (Exception e) {
@@ -156,9 +155,12 @@ public  class Utilidades {
             }
             return respuesta;
         }
+        public static List<Comercio> getComercios(){
+            return new Select().from(Comercio.class).execute();
+        }
         public static List<Comercio> getComerciobyCategoria(Comercio_Categoria categoria){
             return new Select().from(Comercio.class)
-                    .where("pk_categoria=?",categoria.getId())
+                    .where("pk_categoria =?",categoria.getId())
                     .execute();
         }
         public static List<Cupon> getCuponesPendientesCarga(){
