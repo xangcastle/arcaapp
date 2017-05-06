@@ -48,7 +48,8 @@ public  class Utilidades {
     public final static int BLACK = 0xFF000000;
     public final static int WIDTH = 400;
     public final static int HEIGHT = 400;
-    public final static String BASE_URL="http://192.168.232.1:8000";
+    public final static String BASE_URL="http://192.168.0.38:8000";
+    //public final static String BASE_URL="http://192.168.232.1:8000";
     //public final static String BASE_URL="http://demos.deltacopiers.com";
     public static boolean is_autenticado(Context context){
         Usuario usuario=new Select().from(Usuario.class).where("activo=?",true).executeSingle();
@@ -136,48 +137,55 @@ public  class Utilidades {
             e.printStackTrace();
         }
     }
-    public static class db{
-        public static Usuario getUsuario(){
-            return new Select().from(Usuario.class).where("activo=?",true).executeSingle();
+    public static class db {
+        public static Usuario getUsuario() {
+            return new Select().from(Usuario.class).where("activo=?", true).executeSingle();
         }
-        public static List<Cupon> getCupones(){
+
+        public static List<Cupon> getCupones() {
             return new Select().from(Cupon.class)
                     .orderBy("creado desc")
                     .execute();
         }
-        public static List<Comercio_Categoria> getCategorias(){
-            List<Comercio_Categoria> respuesta=new ArrayList<>();
+
+        public static List<Comercio_Categoria> getCategorias() {
+            List<Comercio_Categoria> respuesta = new ArrayList<>();
             List<Comercio_Categoria> categorias = new Select().from(Comercio_Categoria.class)
                     .execute();
-            for (Comercio_Categoria categoria: categorias) {
-                if(new Select().from(Comercio.class).where("pk_categoria=?",categoria.getId()).count()>0)
+            for (Comercio_Categoria categoria : categorias) {
+                if (new Select().from(Comercio.class).where("pk_categoria=?", categoria.getId()).count() > 0)
                     respuesta.add(categoria);
             }
             return respuesta;
         }
-        public static List<Comercio> getComercios(){
+
+        public static List<Comercio> getComercios() {
             return new Select().from(Comercio.class).execute();
         }
-        public static List<Comercio> getComerciobyCategoria(Comercio_Categoria categoria){
+
+        public static List<Comercio> getComerciobyCategoria(Comercio_Categoria categoria) {
             return new Select().from(Comercio.class)
-                    .where("pk_categoria =?",categoria.getId())
+                    .where("pk_categoria =?", categoria.getId())
                     .execute();
         }
-        public static List<Comercio> getComerciobyNombre(String filtro){
+
+        public static List<Comercio> getComerciobyNombre(String filtro) {
             return new Select().from(Comercio.class)
                     .where("nombre LIKE ?", new String[]{'%' + filtro + '%'})
-                    .or("telefono LIKE ?",new String[]{'%' + filtro + '%'})
-                    .or("direccion LIKE ?",new String[]{'%' + filtro + '%'})
+                    .or("telefono LIKE ?", new String[]{'%' + filtro + '%'})
+                    .or("direccion LIKE ?", new String[]{'%' + filtro + '%'})
                     .execute();
         }
-        public static List<Cupon> getCuponesPendientesCarga(){
+
+        public static List<Cupon> getCuponesPendientesCarga() {
             return new Select().from(Cupon.class)
-                    .where("id_cupon=?",0)
+                    .where("id_cupon=?", 0)
                     .execute();
         }
-        public static void localLogOut(){
-            Usuario usuario=getUsuario();
-            usuario.activo=false;
+
+        public static void localLogOut() {
+            Usuario usuario = getUsuario();
+            usuario.activo = false;
             usuario.save();
         }
     }

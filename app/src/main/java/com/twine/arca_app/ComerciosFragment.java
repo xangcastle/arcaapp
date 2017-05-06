@@ -8,6 +8,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.MenuItemCompat;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
@@ -26,13 +27,8 @@ import android.widget.Toast;
 import com.activeandroid.query.Select;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
-import com.squareup.okhttp.internal.Util;
-import com.twine.arca_app.adapters.CategoriaComercioAdapter;
 import com.twine.arca_app.adapters.ComercioAdapter;
-import com.twine.arca_app.adapters.ComercioAdapter_;
-import com.twine.arca_app.adapters.CuponAdapter;
 import com.twine.arca_app.adapters.DividerItemDecoration;
-import com.twine.arca_app.adapters.GridComercioAdapter;
 import com.twine.arca_app.general.SessionManager;
 import com.twine.arca_app.general.Utilidades;
 import com.twine.arca_app.models.Comercio;
@@ -73,6 +69,8 @@ public class ComerciosFragment extends Fragment {
     RecyclerView lista;
     @ViewById(R.id.btnCategorias)
     Button btnCategorias;
+    @ViewById(R.id.swipeRefresh)
+    SwipeRefreshLayout refreshLayout;
 
     ComercioAdapter adapter;
 
@@ -92,16 +90,29 @@ public class ComerciosFragment extends Fragment {
         session=new SessionManager(getContext());
         setHasOptionsMenu(true);
 
+
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_comercios, container, false);
     }
 
     @AfterViews
     void cargaInicial(){
-        String categoria_id=session.getSharedValue("categoria_id");
-        if(categoria_id==null || categoria_id.equals("0"))
-            btnCategorias.setText("CATEGORIA: TODAS");
+        refreshLayout.setOnRefreshListener(
+                new SwipeRefreshLayout.OnRefreshListener() {
+                    @Override
+                    public void onRefresh() {
+                        sincronizar();
+                    }
+                }
+        );
+        refreshLayout.setColorSchemeResources(
+                R.color.blue_800,
+                R.color.purple_600,
+                R.color.orange_800,
+                R.color.lime_A800
+        );
         sincronizar();
+
     }
     @AfterViews
     void bindAdapter() {
@@ -111,8 +122,14 @@ public class ComerciosFragment extends Fragment {
             categoria_id="0";
         }
 
+
         Comercio_Categoria categoria = new Select().from(Comercio_Categoria.class)
                 .where("id_categoria=?", Long.parseLong(categoria_id)).executeSingle();
+
+        if(categoria_id.equals("0"))
+            btnCategorias.setText("CATEGORIA: TODAS");
+        else
+            btnCategorias.setText("CATEGORIA: " + categoria.nombre.toUpperCase());
 
         if(categoria==null || categoria.id_categoria==0){
             comercios = Utilidades.db.getComercios();
@@ -143,6 +160,11 @@ public class ComerciosFragment extends Fragment {
         Comercio_Categoria categoria = new Select().from(Comercio_Categoria.class)
                 .where("id_categoria=?", Long.parseLong(categoria_id)).executeSingle();
 
+        if(categoria_id.equals("0"))
+            btnCategorias.setText("CATEGORIA: TODAS");
+        else
+            btnCategorias.setText("CATEGORIA: " + categoria.nombre.toUpperCase());
+
         comercios.clear();
         List<Comercio> comerciotmp;
         if(categoria==null || categoria.id_categoria==0){
@@ -152,8 +174,10 @@ public class ComerciosFragment extends Fragment {
         for (Comercio comercio:comerciotmp) {
             comercios.add(comercio);
         }
-
-        adapter.notifyDataSetChanged();
+        adapter.clear();
+        adapter.addAll(comercios);
+        if(refreshLayout!=null)
+            refreshLayout.setRefreshing(false);
     }
 
     @Override
@@ -165,13 +189,18 @@ public class ComerciosFragment extends Fragment {
             @Override
             public boolean onQueryTextSubmit(String query) {
                 searchView.clearFocus();
+                refrescarLista();
                 return true;
             }
             @Override
             public boolean onQueryTextChange(String newText) {
+                List<Comercio> comerciotmp = Utilidades.db.getComercios();
+                adapter.clear();
+                adapter.addAll(comerciotmp);
                 adapter.getFilter().filter(newText);
                 return true;
             }
+
         });
         super.onCreateOptionsMenu(menu,inflater);
     }
@@ -294,8 +323,10 @@ public class ComerciosFragment extends Fragment {
             String respuesta=restClient.get_comercios();
             guardarComercios(respuesta);
             cargarCupones();
+            refrescarLista();
         }
     }
+
     private void guardarComercios(String respuesta){
         if(respuesta!=null){
             try {

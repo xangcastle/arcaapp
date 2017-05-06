@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -53,12 +54,16 @@ public class DescuentosFragment extends Fragment {
     private OnFragmentInteractionListener mListener;
     @ViewById(R.id.recyclerView)
     RecyclerView recyclerView;
+    @ViewById(R.id.swipeRefresh)
+    SwipeRefreshLayout refreshLayout;
     @Bean
     CuponAdapter adapter;
     @RestService
     RestClient restClient;
     @Bean
     MyRestErrorHandler myErrorhandler;
+
+
     List<Cupon> cupones;
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -88,24 +93,36 @@ public class DescuentosFragment extends Fragment {
         adapter.addAll(cupones);
         recyclerView.setHasFixedSize(true);
 
-        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
+        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(
+                getContext(),
+                LinearLayoutManager.VERTICAL,
+                false);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.addItemDecoration(new DividerItemDecoration(getContext(), LinearLayoutManager.VERTICAL));
         recyclerView.setAdapter(adapter);
+        refreshLayout.setOnRefreshListener(
+                new SwipeRefreshLayout.OnRefreshListener() {
+                    @Override
+                    public void onRefresh() {
+                        descargarCupones();
+                    }
+                }
+        );
+        refreshLayout.setColorSchemeResources(
+                R.color.blue_800,
+                R.color.purple_600,
+                R.color.orange_800,
+                R.color.lime_A800
+        );
     }
     @UiThread
     void recargarLista(){
-        adapter.notifyDataSetChanged();
+        adapter.clear();
+        adapter.addAll(cupones);
+        if(refreshLayout!=null)
+            refreshLayout.setRefreshing(false);
     }
-
-    /*@Click(R.id.readQR)
-    void click_readQR(){
-        IntentIntegrator integrator = new IntentIntegrator((Activity) getContext());
-        integrator.setDesiredBarcodeFormats(integrator.QR_CODE_TYPES);
-        Intent scanIntent=integrator.createScanIntent();
-        startActivityForResult(scanIntent,IntentIntegrator.REQUEST_CODE);
-    }*/
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -184,6 +201,7 @@ public class DescuentosFragment extends Fragment {
                         JSONObject jrespuesta=new JSONObject(respuesta);
                         if(jrespuesta.getInt("code")==200){
                             JSONArray jcupones = jrespuesta.getJSONArray("cupones");
+                            Boolean haynuevos=false;
                             for (int i = 0; i < jcupones.length(); i++) {
                                 JSONObject jcupon = jcupones.getJSONObject(i);
                                 Empleado empleado = new Select().from(Empleado.class)
@@ -220,11 +238,16 @@ public class DescuentosFragment extends Fragment {
                                     cupon.empleado=empleado;
                                     cupon.descuento=descuento;
                                     cupon.save();
-                                    if(isnew)
+                                    if(isnew) {
+                                        haynuevos=true;
                                         cupones.add(cupon);
-                                        recargarLista();
+                                    }
                                 }
                             }
+                            if(haynuevos) {
+                                recargarLista();
+                            }
+
                         }
                     } catch (JSONException e) {
                         e.printStackTrace();

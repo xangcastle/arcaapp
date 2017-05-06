@@ -31,8 +31,10 @@ public class CuponActivity extends AppCompatActivity {
     TextView comercio_nombre;
     @ViewById(R.id.porcentaje_descuento)
     TextView porcentaje_descuento;
-    @ViewById(R.id.cupon_detalle)
-    TextView cupon_detalle;
+    @ViewById(R.id.cupon_vencimiento)
+    TextView cupon_vencimiento;
+    @ViewById(R.id.condiciones)
+    TextView condiciones;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,7 +64,8 @@ public class CuponActivity extends AppCompatActivity {
                 comercio_nombre.setText(cupon.descuento.comercio.nombre);
                 porcentaje_descuento.setText("-" +
                         String.valueOf(cupon.descuento.porcentaje_descuento) + "%");
-                cupon_detalle.setText("");
+                cupon_vencimiento.setText(cupon.label_vence_en());
+                condiciones.setText(cupon.descuento.condiciones());
             }
         }
     }

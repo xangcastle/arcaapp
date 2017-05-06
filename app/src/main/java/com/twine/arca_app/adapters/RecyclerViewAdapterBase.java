@@ -55,6 +55,8 @@ public abstract class RecyclerViewAdapterBase<T, V extends View & ViewWrapper.Bi
 
     public void clear() {
         items.clear();
+        items_bk.clear();
+        notifyDataSetChanged();
     }
 
 }

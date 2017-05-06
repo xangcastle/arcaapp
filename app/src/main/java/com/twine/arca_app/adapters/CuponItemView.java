@@ -38,6 +38,9 @@ public class CuponItemView extends LinearLayout implements ViewWrapper.Binder<Cu
     @ViewById(R.id.cardView)
     CardView cardView;
 
+    @ViewById(R.id.condiciones)
+    TextView condiciones;
+
     public CuponItemView(Context context) {
         super(context);
     }
@@ -49,6 +52,8 @@ public class CuponItemView extends LinearLayout implements ViewWrapper.Binder<Cu
             comercio_nombre.setText(cupon.descuento.comercio.nombre);
         }
         cupon_vencimiento.setText(cupon.label_vence_en());
+        condiciones.setText(cupon.descuento.condiciones());
+
         porcentaje_descuento.setText("-" +
                 String.valueOf(cupon.descuento.porcentaje_descuento) +
                 " %");
