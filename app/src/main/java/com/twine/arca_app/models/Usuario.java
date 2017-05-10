@@ -24,10 +24,12 @@ public class Usuario extends Model {
     public String email;
     @Column(name = "foto")
     public String foto;
-    @Column(name = "direccion")
-    public String direccion;
     @Column(name = "telefono")
     public String telefono;
+    @Column(name = "edad")
+    public String edad;
+    @Column(name = "genero")
+    public String genero;
     @Column(name = "activo")
     public boolean activo;
     @Column(name = "codigo")

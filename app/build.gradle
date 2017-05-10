@@ -46,11 +46,16 @@ android {
     }
     buildTypes {
         release {
-            minifyEnabled false
+            signingConfig signingConfigs.config
+            minifyEnabled true   // shrink
+            useProguard true    // obfuscate
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
         debug {
             signingConfig signingConfigs.config
+            minifyEnabled true  // shrink
+            useProguard false   // don't obfuscate
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
     productFlavors {
@@ -65,6 +70,7 @@ dependencies {
     compile 'com.android.support:appcompat-v7:25.2.0'
     compile 'com.github.adrielcafe:AndroidOAuth:1.1.5'
     compile 'com.google.android.gms:play-services-auth:9.8.0'
+    compile 'com.google.android.gms:play-services-plus:9.8.0'
     compile 'com.squareup.picasso:picasso:2.5.2'
     compile 'org.androidannotations:androidannotations-api:4.0-SNAPSHOT'
     compile 'org.androidannotations:rest-spring-api:4.0-SNAPSHOT'

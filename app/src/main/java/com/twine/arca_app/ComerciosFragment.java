@@ -335,6 +335,18 @@ public class ComerciosFragment extends Fragment {
                     JSONObject jcomercio=jcomercios.getJSONObject(i);
 
 
+                    Comercio_Categoria categoria_todas=new Select().from(Comercio_Categoria.class)
+                            .where("id_categoria=?", 0)
+                            .executeSingle();
+
+                    if(categoria_todas==null){
+                        categoria_todas=new Comercio_Categoria();
+                        categoria_todas.id_categoria=0;
+                        categoria_todas.nombre="Sin categoria";
+                        categoria_todas.save();
+                    }
+
+
                     Comercio_Categoria categoria=new Select().from(Comercio_Categoria.class)
                             .where("id_categoria=?", jcomercio.getJSONObject("categoria").getInt("id"))
                             .executeSingle();
@@ -355,11 +367,6 @@ public class ComerciosFragment extends Fragment {
                     }
                     comercio.id_comercio=jcomercio.getInt("id");
                     comercio.nombre=jcomercio.getString("nombre");
-
-
-
-
-
                     if (jcomercio.has("direccion"))
                         comercio.direccion=jcomercio.getString("direccion");
                     if (jcomercio.has("telefono"))
@@ -437,9 +444,9 @@ public class ComerciosFragment extends Fragment {
                         producto.id_producto=jproducto.getInt("id");
                         producto.nombre=jproducto.getString("nombre");
                         producto.descripcion=jproducto.getString("descripcion");
-                        producto.precio=jproducto.getDouble("precio");
+                        producto.precio=jproducto.isNull("precio")?0:jproducto.getDouble("precio");
                         producto.imagen=jproducto.getString("imagen");
-                        producto.descuento=jproducto.getDouble("descuento");
+                        producto.descuento=jproducto.isNull("descuento")?0:jproducto.getDouble("descuento");
                         producto.activo=jproducto.getBoolean("activo");
                         producto.comercio=comercio;
                         producto.save();

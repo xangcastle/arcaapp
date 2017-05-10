@@ -201,7 +201,6 @@ public class DescuentosFragment extends Fragment {
                         JSONObject jrespuesta=new JSONObject(respuesta);
                         if(jrespuesta.getInt("code")==200){
                             JSONArray jcupones = jrespuesta.getJSONArray("cupones");
-                            Boolean haynuevos=false;
                             for (int i = 0; i < jcupones.length(); i++) {
                                 JSONObject jcupon = jcupones.getJSONObject(i);
                                 Empleado empleado = new Select().from(Empleado.class)
@@ -239,13 +238,9 @@ public class DescuentosFragment extends Fragment {
                                     cupon.descuento=descuento;
                                     cupon.save();
                                     if(isnew) {
-                                        haynuevos=true;
                                         cupones.add(cupon);
                                     }
                                 }
-                            }
-                            if(haynuevos) {
-                                recargarLista();
                             }
 
                         }
@@ -254,6 +249,7 @@ public class DescuentosFragment extends Fragment {
                     }
                 }
             }
+        recargarLista();
     }
 
     @Background

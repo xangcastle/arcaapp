@@ -23,7 +23,11 @@ public interface RestClient extends RestClientErrorHandling, RestClientHeaders {
     String createUserAuth(@Field String username,
                           @Field String nombre,
                           @Field String apellido,
-                          @Field String email);
+                          @Field String age,
+                          @Field String gender,
+                          @Field String email,
+                          @Field String telefono
+    );
 
     @Get("/arca/get_comercios/")
     String get_comercios();

@@ -41,11 +41,16 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.auth.api.signin.GoogleSignInResult;
 import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.Scopes;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.OptionalPendingResult;
 import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.common.api.Scope;
 import com.google.android.gms.common.api.Status;
+import com.google.android.gms.plus.People;
+import com.google.android.gms.plus.Plus;
+import com.google.android.gms.plus.model.people.Person;
 import com.squareup.picasso.Picasso;
 import com.twine.arca_app.general.Utilidades;
 import com.twine.arca_app.models.Usuario;
@@ -96,7 +101,11 @@ public class LoginActivity extends AppCompatActivity implements
         // Configure sign-in to request the user's ID, email address, and basic
         // profile. ID and basic profile are included in DEFAULT_SIGN_IN.
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestScopes(new Scope(Scopes.PLUS_LOGIN))
+                .requestScopes(new Scope(Scopes.PLUS_ME))
+                .requestScopes(new Scope(Scopes.PROFILE))
                 .requestEmail()
+                .requestProfile()
                 .build();
 
         // Build a GoogleApiClient with access to the Google Sign-In API and the
@@ -134,8 +143,29 @@ public class LoginActivity extends AppCompatActivity implements
         Log.d(TAG, "handleSignInResult:" + result.isSuccess());
         if (result.isSuccess()) {
             // Signed in successfully, show authenticated UI.
+
             GoogleSignInAccount acct = result.getSignInAccount();
             assert acct != null;
+
+            if (mGoogleApiClient.hasConnectedApi(Plus.API)){
+                Plus.PeopleApi.load(mGoogleApiClient, acct.getId()).setResultCallback(new ResultCallback<People.LoadPeopleResult>() {
+                    @Override
+                    public void onResult(@NonNull People.LoadPeopleResult loadPeopleResult) {
+                        Person person = loadPeopleResult.getPersonBuffer().get(0);
+                        Log.d(TAG,"Person loaded");
+                        Log.d(TAG,"GivenName "+person.getName().getGivenName());
+                        Log.d(TAG,"FamilyName "+person.getName().getFamilyName());
+                        Log.d(TAG,("DisplayName "+person.getDisplayName()));
+                        Log.d(TAG,"Gender "+person.getGender());
+                        Log.d(TAG,"Url "+person.getUrl());
+                        Log.d(TAG,"CurrentLocation "+person.getCurrentLocation());
+                        Log.d(TAG,"AboutMe "+person.getAboutMe());
+                        Log.d(TAG,"Birthday "+person.getBirthday());
+                        Log.d(TAG,"Image "+person.getImage());
+                    }
+                });
+            }
+
             String personName = acct.getDisplayName();
             String personGivenName = acct.getGivenName();
             String personFamilyName = acct.getFamilyName();
@@ -156,7 +186,10 @@ public class LoginActivity extends AppCompatActivity implements
                     String.valueOf(usuario.username),
                     String.valueOf(usuario.nombre),
                     String.valueOf(usuario.apellido),
-                    String.valueOf(usuario.email));
+                    String.valueOf(usuario.edad),
+                    String.valueOf(usuario.genero),
+                    String.valueOf(usuario.email),
+                    String.valueOf(usuario.telefono));
             if(resultado!=null){
                 try {
                     JSONObject jresultado=new JSONObject(resultado);
@@ -171,8 +204,6 @@ public class LoginActivity extends AppCompatActivity implements
                 }
             }else
                 handleSignInResult(false);
-
-
         }
         handleSignInResult(result.isSuccess());
     }
@@ -249,5 +280,7 @@ public class LoginActivity extends AppCompatActivity implements
             }
         }
     }
+
+
 }
 

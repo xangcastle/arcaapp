@@ -48,9 +48,9 @@ public  class Utilidades {
     public final static int BLACK = 0xFF000000;
     public final static int WIDTH = 400;
     public final static int HEIGHT = 400;
-    //public final static String BASE_URL="http://192.168.0.38:8000";
+    public final static String BASE_URL="http://192.168.0.15:8000";
     //public final static String BASE_URL="http://192.168.232.1:8000";
-    public final static String BASE_URL="http://demos.deltacopiers.com";
+    //public final static String BASE_URL="http://demos.deltacopiers.com";
     public static boolean is_autenticado(Context context){
         Usuario usuario=new Select().from(Usuario.class).where("activo=?",true).executeSingle();
         if (usuario!=null)
@@ -152,8 +152,11 @@ public  class Utilidades {
             List<Comercio_Categoria> respuesta = new ArrayList<>();
             List<Comercio_Categoria> categorias = new Select().from(Comercio_Categoria.class)
                     .execute();
+
             for (Comercio_Categoria categoria : categorias) {
-                if (new Select().from(Comercio.class).where("pk_categoria=?", categoria.getId()).count() > 0)
+                if(categoria.id_categoria==0) //PARA QUE SIEMPRE APARESCA LA CATEGORIA TODAS
+                    respuesta.add(categoria);
+                else if (new Select().from(Comercio.class).where("pk_categoria=?", categoria.getId()).count() > 0)
                     respuesta.add(categoria);
             }
             return respuesta;
