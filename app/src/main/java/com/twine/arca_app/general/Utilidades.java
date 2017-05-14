@@ -17,6 +17,7 @@ import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.widget.ImageView;
 
+import com.activeandroid.query.Delete;
 import com.activeandroid.query.Select;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
@@ -32,9 +33,20 @@ import com.twine.arca_app.LoginActivity_;
 import com.twine.arca_app.R;
 import com.twine.arca_app.models.Comercio;
 import com.twine.arca_app.models.Comercio_Categoria;
+import com.twine.arca_app.models.Comercio_Rating;
 import com.twine.arca_app.models.Cupon;
+import com.twine.arca_app.models.Descuento;
+import com.twine.arca_app.models.Empleado;
+import com.twine.arca_app.models.Factura;
+import com.twine.arca_app.models.Producto;
 import com.twine.arca_app.models.Usuario;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -48,7 +60,7 @@ public  class Utilidades {
     public final static int BLACK = 0xFF000000;
     public final static int WIDTH = 400;
     public final static int HEIGHT = 400;
-    public final static String BASE_URL="http://192.168.0.15:8000";
+    public final static String BASE_URL="http://192.168.1.2:8000";
     //public final static String BASE_URL="http://192.168.232.1:8000";
     //public final static String BASE_URL="http://demos.deltacopiers.com";
     public static boolean is_autenticado(Context context){
@@ -141,9 +153,15 @@ public  class Utilidades {
         public static Usuario getUsuario() {
             return new Select().from(Usuario.class).where("activo=?", true).executeSingle();
         }
-
-        public static List<Cupon> getCupones() {
+        public static List<Cupon> getCupones(boolean canjeado) {
             return new Select().from(Cupon.class)
+                    .where("canjeado=?", canjeado)
+                    .orderBy("creado desc")
+                    .execute();
+        }
+        public static List<Cupon> getCuponesCanjeados() {
+            return new Select().from(Cupon.class)
+                    .where("canjeado=?", true)
                     .orderBy("creado desc")
                     .execute();
         }
@@ -186,10 +204,133 @@ public  class Utilidades {
                     .execute();
         }
 
+        public static boolean saveCupones(String respuesta){
+            Boolean isnew=false;
+            if(respuesta!=null){
+                try {
+                    JSONObject jrespuesta=new JSONObject(respuesta);
+                    if(jrespuesta.getInt("code")==200){
+                        JSONArray jcupones = jrespuesta.getJSONArray("cupones");
+                        for (int i = 0; i < jcupones.length(); i++) {
+                            JSONObject jcupon = jcupones.getJSONObject(i);
+                            Empleado empleado = new Select().from(Empleado.class)
+                                    .where("id_empleado=?",jcupon.getJSONObject("creado_por").getInt("id"))
+                                    .executeSingle();
+                            if (empleado==null)
+                                empleado=new Empleado();
+                            empleado.id_empleado=jcupon.getJSONObject("creado_por").getInt("id");
+                            empleado.nombre=jcupon.getJSONObject("creado_por").getString("nombre");
+                            empleado.save();
+
+                            Descuento descuento = new Select().from(Descuento.class)
+                                    .where("id_descuento=?",jcupon.getInt("id_descuento"))
+                                    .executeSingle();
+
+                            if(descuento!=null && empleado!=null){
+                                Cupon cupon = new Select().from(Cupon.class)
+                                        .where("id_cupon=?",jcupon.getInt("id"))
+                                        .executeSingle();
+
+                                if (cupon==null) {
+                                    cupon = new Cupon();
+                                    isnew=true;
+                                }
+                                cupon.id_cupon=jcupon.getInt("id");
+                                cupon.codigo=jcupon.getString("codigo");
+                                cupon.canjeado=jcupon.getBoolean("canjeado");
+                                try {
+                                    cupon.creado=new SimpleDateFormat("yyyy-MM-dd hh:mm:ss")
+                                            .parse(jcupon.getString("creado")) ;
+                                } catch (ParseException e) {
+                                    e.printStackTrace();
+                                }try {
+                                    cupon.actualizado=new SimpleDateFormat("yyyy-MM-dd hh:mm:ss")
+                                            .parse(jcupon.getString("actualizado")) ;
+                                } catch (ParseException e) {
+                                    e.printStackTrace();
+                                }
+                                cupon.empleado=empleado;
+                                cupon.descuento=descuento;
+                                cupon.save();
+                            }
+                        }
+
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+            return  isnew;
+        }
+        public static boolean saveFacturas(String strJson){
+            Boolean nuevos=true;
+            try {
+                JSONObject jrespuesta=new JSONObject(strJson);
+                if(jrespuesta.getInt("code")==200){
+                    JSONArray jcupones = jrespuesta.getJSONArray("facturas");
+
+                    for (int i = 0; i < jcupones.length(); i++) {
+                        JSONObject jfactura = jcupones.getJSONObject(i);
+                        Cupon cupon= new Select().from(Cupon.class)
+                                .where("id_cupon=?",jfactura.getInt("cupon_id"))
+                                .executeSingle();
+
+                        if (cupon==null)
+                            continue;
+
+                        Comercio comercio= new Select().from(Comercio.class)
+                                .where("id_comercio=?",jfactura.getInt("comercio_id"))
+                                .executeSingle();
+
+                        if (comercio==null)
+                            continue;
+
+                        Factura factura=new Select().from(Factura.class)
+                                .where("id_factura=?",jfactura.getInt("id"))
+                                .executeSingle();
+                        if(factura==null) {
+                            factura = new Factura();
+                            nuevos=true;
+                        }
+                        factura.id_factura=jfactura.getInt("id");
+                        factura.comercio=comercio;
+                        factura.cupon=cupon;
+                        factura.monto=jfactura.getDouble("monto");
+                        factura.descuento=jfactura.getDouble("descuento");
+                        try {
+                            factura.fecha=new SimpleDateFormat("yyyy-MM-dd hh:mm:ss")
+                                    .parse(jfactura.getString("fecha")) ;
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
+                        cupon.canjeado=true;
+                        cupon.save();
+                        factura.save();
+                    }
+
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            } catch (Exception e){
+                e.printStackTrace();
+            }
+            return nuevos;
+        }
         public static void localLogOut() {
             Usuario usuario = getUsuario();
             usuario.activo = false;
             usuario.save();
+            limpiarTodo();
+        }
+        public static void limpiarTodo(){
+            new Delete().from(Cupon.class).execute();
+            new Delete().from(Descuento.class).execute();
+            new Delete().from(Producto.class).execute();
+            new Delete().from(Comercio_Rating.class).execute();
+            new Delete().from(Comercio.class).execute();
+            new Delete().from(Comercio_Categoria.class).execute();
+            new Delete().from(Usuario.class).execute();
+            new Delete().from(Empleado.class).execute();
         }
     }
     //region PERMISOS

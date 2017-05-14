@@ -2,17 +2,20 @@ package com.twine.arca_app;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.Toast;
 
 import com.activeandroid.query.Select;
@@ -22,7 +25,9 @@ import com.google.zxing.integration.android.IntentResult;
 import com.twine.arca_app.adapters.CuponAdapter;
 import com.twine.arca_app.adapters.CuponAdapter_;
 import com.twine.arca_app.adapters.DividerItemDecoration;
+import com.twine.arca_app.general.SessionManager;
 import com.twine.arca_app.general.Utilidades;
+import com.twine.arca_app.models.Comercio_Categoria;
 import com.twine.arca_app.models.Cupon;
 import com.twine.arca_app.models.Descuento;
 import com.twine.arca_app.models.Empleado;
@@ -44,6 +49,7 @@ import org.json.JSONObject;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -56,14 +62,15 @@ public class DescuentosFragment extends Fragment {
     RecyclerView recyclerView;
     @ViewById(R.id.swipeRefresh)
     SwipeRefreshLayout refreshLayout;
+    @ViewById(R.id.btnCategorias)
+    Button btnCategorias;
     @Bean
     CuponAdapter adapter;
     @RestService
     RestClient restClient;
     @Bean
     MyRestErrorHandler myErrorhandler;
-
-
+    SessionManager session;
     List<Cupon> cupones;
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -76,6 +83,7 @@ public class DescuentosFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         restClient.setRestErrorHandler(myErrorhandler);
+        session=new SessionManager(getContext());
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_descuentos, container, false);
     }
@@ -83,13 +91,34 @@ public class DescuentosFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        descargarCupones();
+        String evalcanjeado=session.getSharedValue("canjeado");
+        if(evalcanjeado==null) {
+            session.saveSharedValue("canjeado", "0");
+            canjeado=false;
+        }else {
+            canjeado= evalcanjeado.equals("1");
+        }
+        recargarLista();
+        descargarCupones(canjeado);
     }
+    boolean canjeado=false;
 
     @AfterViews
     void bindAdapter() {
+        String evalcanjeado=session.getSharedValue("canjeado");
+        if(evalcanjeado==null) {
+            session.saveSharedValue("canjeado", "0");
+            canjeado=false;
+        }else {
+            canjeado= evalcanjeado.equals("1");
+        }
+        if(canjeado){
+            btnCategorias.setText("ESTADO: NO CANJEADO");
+        }else
+            btnCategorias.setText("ESTADO: CANJEADO");
+
         adapter=new CuponAdapter(getContext());
-        cupones = Utilidades.db.getCupones();
+        cupones = Utilidades.db.getCupones(canjeado);
         adapter.addAll(cupones);
         recyclerView.setHasFixedSize(true);
 
@@ -105,7 +134,7 @@ public class DescuentosFragment extends Fragment {
                 new SwipeRefreshLayout.OnRefreshListener() {
                     @Override
                     public void onRefresh() {
-                        descargarCupones();
+                        descargarCupones(canjeado);
                     }
                 }
         );
@@ -116,8 +145,37 @@ public class DescuentosFragment extends Fragment {
                 R.color.lime_A800
         );
     }
+    @Click(R.id.btnCategorias)
+    void btnCategorias_Click(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        final List<String> strCategorias =new ArrayList<>();
+        strCategorias.add("NO CANJEADOS");
+        strCategorias.add("CANJEADOS");
+
+
+        CharSequence[] items= strCategorias.toArray(new CharSequence[strCategorias.size()]);
+        builder.setTitle(R.string.slect_categoria)
+                .setItems(items, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        session.saveSharedValue("canjeado",which==1?"1":"0");
+                        canjeado= which == 1;
+                        cupones = Utilidades.db.getCupones(canjeado);
+                        btnCategorias.setText("ESTADO: " + strCategorias.get(which));
+                        recargarLista();
+                    }
+                });
+        AlertDialog dialog = builder.create();
+        dialog.show();
+
+
+    }
     @UiThread
     void recargarLista(){
+        if(canjeado){
+            btnCategorias.setText("ESTADO: CANJEADO");
+        }else
+            btnCategorias.setText("ESTADO: NO CANJEADO");
+
         adapter.clear();
         adapter.addAll(cupones);
         if(refreshLayout!=null)
@@ -191,67 +249,25 @@ public class DescuentosFragment extends Fragment {
     }
 
     @Background
-    void descargarCupones(){
-        Usuario usuario=new Select().from(Usuario.class).where("activo=?",true).executeSingle();
-        if (usuario!=null)
-            if (Utilidades.isConnected(getContext())) {
-                String respuesta = restClient.get_cupones(usuario.username);
-                if(respuesta!=null){
-                    try {
-                        JSONObject jrespuesta=new JSONObject(respuesta);
-                        if(jrespuesta.getInt("code")==200){
-                            JSONArray jcupones = jrespuesta.getJSONArray("cupones");
-                            for (int i = 0; i < jcupones.length(); i++) {
-                                JSONObject jcupon = jcupones.getJSONObject(i);
-                                Empleado empleado = new Select().from(Empleado.class)
-                                        .where("id_empleado=?",jcupon.getJSONObject("creado_por").getInt("id"))
-                                        .executeSingle();
-                                if (empleado==null)
-                                    empleado=new Empleado();
-                                empleado.id_empleado=jcupon.getJSONObject("creado_por").getInt("id");
-                                empleado.nombre=jcupon.getJSONObject("creado_por").getString("nombre");
-                                empleado.save();
-
-                                Descuento descuento = new Select().from(Descuento.class)
-                                        .where("id_descuento=?",jcupon.getInt("id_descuento"))
-                                        .executeSingle();
-
-                                if(descuento!=null && empleado!=null){
-                                    Cupon cupon = new Select().from(Cupon.class)
-                                            .where("id_cupon=?",jcupon.getInt("id"))
-                                            .executeSingle();
-                                    Boolean isnew=false;
-                                    if (cupon==null) {
-                                        cupon = new Cupon();
-                                        isnew=true;
-                                    }
-                                    cupon.id_cupon=jcupon.getInt("id");
-                                    cupon.codigo=jcupon.getString("codigo");
-                                    cupon.canjeado=jcupon.getBoolean("canjeado");
-                                    try {
-                                        cupon.creado=new SimpleDateFormat("yyyy-MM-dd hh:mm:ss")
-                                                .parse(jcupon.getString("creado")) ;
-                                    } catch (ParseException e) {
-                                        e.printStackTrace();
-                                    }
-                                    cupon.empleado=empleado;
-                                    cupon.descuento=descuento;
-                                    cupon.save();
-                                    if(isnew) {
-                                        cupones.add(cupon);
-                                    }
-                                }
-                            }
-
-                        }
-                    } catch (JSONException e) {
-                        e.printStackTrace();
+    void descargarCupones(boolean canjeado){
+        try{
+            Usuario usuario=new Select().from(Usuario.class).where("activo=?",true).executeSingle();
+            if (usuario!=null)
+                if (Utilidades.isConnected(getContext())) {
+                    String respuesta = restClient.get_cupones(usuario.username);
+                    if(Utilidades.db.saveCupones(respuesta)){
+                        cupones = Utilidades.db.getCupones(canjeado);
+                    }
+                    respuesta = restClient.get_facturas(usuario.username);
+                    if(Utilidades.db.saveFacturas(respuesta)){
+                        cupones = Utilidades.db.getCupones(canjeado);
                     }
                 }
-            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
         recargarLista();
     }
-
     @Background
     void cargarCupon(Cupon cupon){
         if(Utilidades.isConnected(getContext())){

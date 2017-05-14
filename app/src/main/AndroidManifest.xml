@@ -28,7 +28,15 @@
             android:value="1" />
         <meta-data
             android:name="AA_MODELS"
-            android:value="com.twine.arca_app.models.Usuario,             com.twine.arca_app.models.Comercio,             com.twine.arca_app.models.Comercio_Categoria,             com.twine.arca_app.models.Comercio_Rating,             com.twine.arca_app.models.Descuento,             com.twine.arca_app.models.Cupon,             com.twine.arca_app.models.Empleado,             com.twine.arca_app.models.Producto" />
+            android:value="com.twine.arca_app.models.Usuario,
+            com.twine.arca_app.models.Comercio,
+            com.twine.arca_app.models.Comercio_Categoria,
+            com.twine.arca_app.models.Comercio_Rating,
+            com.twine.arca_app.models.Descuento,
+            com.twine.arca_app.models.Cupon,
+            com.twine.arca_app.models.Empleado,
+            com.twine.arca_app.models.Producto,
+            com.twine.arca_app.models.Factura"/>
 
         <activity
             android:name=".SplashScreenActivity"

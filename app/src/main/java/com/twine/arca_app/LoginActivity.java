@@ -147,7 +147,7 @@ public class LoginActivity extends AppCompatActivity implements
             GoogleSignInAccount acct = result.getSignInAccount();
             assert acct != null;
 
-            if (mGoogleApiClient.hasConnectedApi(Plus.API)){
+            /*if (mGoogleApiClient.hasConnectedApi(Plus.API)){
                 Plus.PeopleApi.load(mGoogleApiClient, acct.getId()).setResultCallback(new ResultCallback<People.LoadPeopleResult>() {
                     @Override
                     public void onResult(@NonNull People.LoadPeopleResult loadPeopleResult) {
@@ -164,7 +164,7 @@ public class LoginActivity extends AppCompatActivity implements
                         Log.d(TAG,"Image "+person.getImage());
                     }
                 });
-            }
+            }*/
 
             String personName = acct.getDisplayName();
             String personGivenName = acct.getGivenName();
@@ -196,6 +196,11 @@ public class LoginActivity extends AppCompatActivity implements
                     if (jresultado.getInt("code")==200) {
                         usuario.codigo= jresultado.getString("codigo");
                         usuario.id_usuario = jresultado.getInt("id_usuario");
+                        usuario.edad=jresultado.getString("age");
+                        usuario.telefono=jresultado.getString("telefono").equals("null")?"":
+                                         jresultado.getString("telefono");
+                        usuario.genero=jresultado.getString("gender").equals("null")?"Masculino":
+                                        jresultado.getString("gender");
                         usuario.save();
                     }else
                         handleSignInResult(false);

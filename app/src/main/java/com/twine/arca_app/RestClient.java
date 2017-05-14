@@ -41,4 +41,7 @@ public interface RestClient extends RestClientErrorHandling, RestClientHeaders {
 
     @Get("/arca/get_cupones/?username={username}")
     String get_cupones(@Path String username);
+
+    @Get("/arca/get_facturas/?username={username}")
+    String get_facturas(@Path String username);
 }

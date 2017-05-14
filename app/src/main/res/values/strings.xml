@@ -87,4 +87,6 @@
     <string name="dummy_content">DUMMY\nCONTENT</string>
     <string name="arca">ARCA</string>
     <string name="action_salir">Salir</string>
+
+    <string name="prompt_genero">Generos</string>
 </resources>

@@ -153,31 +153,36 @@ public class ComerciosFragment extends Fragment {
     }
     @UiThread
     void refrescarLista(){
-        String categoria_id=session.getSharedValue("categoria_id");
-        if(categoria_id==null)
-            session.saveSharedValue("categoria_id","0");
+        try{
+            String categoria_id=session.getSharedValue("categoria_id");
+            if(categoria_id==null)
+                session.saveSharedValue("categoria_id","0");
 
-        Comercio_Categoria categoria = new Select().from(Comercio_Categoria.class)
-                .where("id_categoria=?", Long.parseLong(categoria_id)).executeSingle();
+            Comercio_Categoria categoria = new Select().from(Comercio_Categoria.class)
+                    .where("id_categoria=?", Long.parseLong(categoria_id)).executeSingle();
 
-        if(categoria_id.equals("0"))
-            btnCategorias.setText("CATEGORIA: TODAS");
-        else
-            btnCategorias.setText("CATEGORIA: " + categoria.nombre.toUpperCase());
+            if(categoria_id.equals("0"))
+                btnCategorias.setText("CATEGORIA: TODAS");
+            else
+                btnCategorias.setText("CATEGORIA: " + categoria.nombre.toUpperCase());
 
-        comercios.clear();
-        List<Comercio> comerciotmp;
-        if(categoria==null || categoria.id_categoria==0){
-            comerciotmp = Utilidades.db.getComercios();
-        }else
-            comerciotmp=Utilidades.db.getComerciobyCategoria(categoria);
-        for (Comercio comercio:comerciotmp) {
-            comercios.add(comercio);
+            comercios.clear();
+            List<Comercio> comerciotmp;
+            if(categoria==null || categoria.id_categoria==0){
+                comerciotmp = Utilidades.db.getComercios();
+            }else
+                comerciotmp=Utilidades.db.getComerciobyCategoria(categoria);
+            for (Comercio comercio:comerciotmp) {
+                comercios.add(comercio);
+            }
+            adapter.clear();
+            adapter.addAll(comercios);
+            if(refreshLayout!=null)
+                refreshLayout.setRefreshing(false);
+        }catch (Exception ex){
+            ex.printStackTrace();
         }
-        adapter.clear();
-        adapter.addAll(comercios);
-        if(refreshLayout!=null)
-            refreshLayout.setRefreshing(false);
+
     }
 
     @Override

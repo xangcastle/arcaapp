@@ -1,60 +1,73 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content">
-    <android.support.v7.widget.CardView android:id="@+id/cardView"
-        android:layout_width="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <android.support.v7.widget.CardView
+        android:id="@+id/cardView"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <RelativeLayout
-            android:layout_width="100dp"
+        <android.support.constraint.ConstraintLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="2dp">
 
             <ImageView
                 android:id="@+id/imageView"
-                android:layout_width="match_parent"
-                android:layout_height="90dp"
+                android:layout_width="134dp"
+                android:layout_height="115dp"
+                android:layout_marginLeft="0dp"
+                android:layout_marginTop="0dp"
                 android:scaleType="fitXY"
-                android:src="@drawable/shop" />
+                android:src="@drawable/shop"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
                 android:id="@+id/producto_nombre"
-                android:layout_width="70dp"
-                android:layout_height="40dp"
-                android:layout_below="@id/imageView"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
                 android:gravity="top|left"
-                android:text="Nombre"
-                android:textSize="10sp"
                 android:paddingRight="2dp"
-                android:layout_alignBottom="@+id/producto_anterior" />
+                android:text="Nombre"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintLeft_toRightOf="@+id/imageView"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/imageView" />
 
             <TextView
                 android:id="@+id/producto_precio"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginLeft="0dp"
+                android:layout_marginTop="8dp"
                 android:gravity="right"
                 android:text="Precio"
                 android:textColor="@android:color/holo_blue_dark"
-                android:textSize="10sp"
                 android:textStyle="bold"
-                android:layout_below="@+id/imageView"
-                android:layout_alignParentRight="true"
-                android:layout_alignParentEnd="true" />
+                app:layout_constraintLeft_toLeftOf="@+id/producto_nombre"
+                app:layout_constraintTop_toBottomOf="@+id/producto_nombre" />
 
             <TextView
                 android:id="@+id/producto_anterior"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:layout_marginLeft="0dp"
+                android:layout_marginTop="0dp"
                 android:gravity="right"
                 android:text="Precio"
-                android:textSize="8sp"
-                android:layout_below="@+id/producto_precio"
-                android:layout_alignParentRight="true"
-                android:layout_alignParentEnd="true"
-                android:layout_toRightOf="@+id/producto_nombre"
-                android:layout_toEndOf="@+id/producto_nombre" />
-        </RelativeLayout>
+                app:layout_constraintLeft_toLeftOf="@+id/producto_nombre"
+                app:layout_constraintTop_toBottomOf="@+id/producto_precio" />
+        </android.support.constraint.ConstraintLayout>
     </android.support.v7.widget.CardView>
 </LinearLayout>
