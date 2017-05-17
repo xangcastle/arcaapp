@@ -28,10 +28,20 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
+import com.twine.arca_app.general.ErrorReporter;
 import com.twine.arca_app.general.Utilidades;
+import com.twine.arca_app.models.Registro;
 import com.twine.arca_app.models.Usuario;
 
+import org.androidannotations.annotations.Background;
+import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EActivity;
+import org.androidannotations.rest.spring.annotations.RestService;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.text.SimpleDateFormat;
+import java.util.List;
 
 @EActivity
 public class MainActivity extends AppCompatActivity
@@ -40,13 +50,18 @@ public class MainActivity extends AppCompatActivity
         ComerciosFragment.OnFragmentInteractionListener,
         GoogleApiClient.OnConnectionFailedListener{
     private GoogleApiClient mGoogleApiClient;
+    @RestService
+    RestClient restClient;
+    @Bean
+    MyRestErrorHandler myErrorhandler;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
+        restClient.setRestErrorHandler(myErrorhandler);
         // Configure sign-in to request the user's ID, email address, and basic
         // profile. ID and basic profile are included in DEFAULT_SIGN_IN.
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -89,6 +104,12 @@ public class MainActivity extends AppCompatActivity
             }
         }
 
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        cargarRegistros();
     }
 
     @Override
@@ -196,5 +217,33 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+    }
+    @Background
+    void cargarRegistros(){
+        final ErrorReporter reporter = ErrorReporter.getInstance();
+        reporter.Init(this);
+        if (reporter.bIsThereAnyErrorFile()) {
+            reporter.CheckErrorAndSend(this);
+        }
+        List<Registro> registros=Utilidades.db.get_registros_sin_cargar();
+        Usuario usuario=Utilidades.db.getUsuario();
+        for (Registro registro:registros) {
+            String respuesta = restClient.agregar_registro("arca_app",
+                    registro.registro,
+                    new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(registro.fecha),
+                    "Usuario: " + usuario.username
+            );
+            if(respuesta!=null){
+                try {
+                    JSONObject jrespuesta=new JSONObject(respuesta);
+                    if(jrespuesta.getInt("code")==200){
+                        registro.cargado=true;
+                        registro.save();
+                    }
+                } catch (JSONException ex) {
+                    ex.printStackTrace();
+                }
+            }
+        }
     }
 }

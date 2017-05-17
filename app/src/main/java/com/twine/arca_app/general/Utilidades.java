@@ -39,6 +39,7 @@ import com.twine.arca_app.models.Descuento;
 import com.twine.arca_app.models.Empleado;
 import com.twine.arca_app.models.Factura;
 import com.twine.arca_app.models.Producto;
+import com.twine.arca_app.models.Registro;
 import com.twine.arca_app.models.Usuario;
 
 import org.json.JSONArray;
@@ -150,6 +151,11 @@ public  class Utilidades {
         }
     }
     public static class db {
+        public static List<Registro> get_registros_sin_cargar(){
+            List<Registro> registros=new Select().from(Registro.class)
+                    .where("cargado=?",false).execute();
+            return registros;
+        }
         public static Usuario getUsuario() {
             return new Select().from(Usuario.class).where("activo=?", true).executeSingle();
         }

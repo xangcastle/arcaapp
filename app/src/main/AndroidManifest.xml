@@ -36,7 +36,8 @@
             com.twine.arca_app.models.Cupon,
             com.twine.arca_app.models.Empleado,
             com.twine.arca_app.models.Producto,
-            com.twine.arca_app.models.Factura"/>
+            com.twine.arca_app.models.Factura,
+            com.twine.arca_app.models.Registro"/>
 
         <activity
             android:name=".SplashScreenActivity"
