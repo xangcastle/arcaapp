@@ -1,6 +1,7 @@
 package com.twine.arca_app;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -20,15 +21,19 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.GridView;
+import android.widget.ListView;
 import android.widget.Toast;
 
 import com.activeandroid.query.Select;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
+import com.twine.arca_app.adapters.CategoriaListAdapterDialog;
 import com.twine.arca_app.adapters.ComercioAdapter;
 import com.twine.arca_app.adapters.DividerItemDecoration;
+import com.twine.arca_app.general.ExpandableHeightGridView;
 import com.twine.arca_app.general.SessionManager;
 import com.twine.arca_app.general.Utilidades;
 import com.twine.arca_app.models.Comercio;
@@ -221,32 +226,35 @@ public class ComerciosFragment extends Fragment {
 
     @Click(R.id.btnCategorias)
     void btnCategorias_Click(){
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         final List<Comercio_Categoria> categorias=Utilidades.db.getCategorias();
-        List<String> strCategorias =new ArrayList<>();
-        for (Comercio_Categoria catetoria:categorias) {
-            if(catetoria.id_categoria==0)
-                strCategorias.add("TODAS");
-            else
-                strCategorias.add(catetoria.nombre.toUpperCase());
-        }
+        final Dialog dialog = new Dialog(getContext());
+        LayoutInflater inflater = LayoutInflater.from(getContext());
 
-        CharSequence[] items= strCategorias.toArray(new CharSequence[strCategorias.size()]);
-        builder.setTitle(R.string.slect_categoria)
-                .setItems(items, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        if(categorias.get(which).id_categoria==0)
-                            btnCategorias.setText("CATEGORIA: TODAS");
-                        else
-                            btnCategorias.setText("CATEGORIA: " + categorias.get(which).nombre.toUpperCase());
-                        session.saveSharedValue("categoria_id",
-                                String.valueOf(categorias.get(which).id_categoria));
-                        refrescarLista();
-                    }
-                });
-        AlertDialog dialog = builder.create();
+        View view = inflater.inflate(R.layout.dialog_main_list, null);
+
+        ExpandableHeightGridView gridview =
+                (ExpandableHeightGridView) view.findViewById(R.id.gridvew_categorias);
+
+
+        CategoriaListAdapterDialog clad = new CategoriaListAdapterDialog(getContext(), categorias);
+        gridview.setAdapter(clad);
+
+        gridview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                if(categorias.get(position).id_categoria==0)
+                    btnCategorias.setText("CATEGORIA: TODAS");
+                else
+                    btnCategorias.setText("CATEGORIA: " + categorias.get(position).nombre.toUpperCase());
+                session.saveSharedValue("categoria_id",
+                        String.valueOf(categorias.get(position).id_categoria));
+                refrescarLista();
+                dialog.hide();
+            }
+        });
+
+        dialog.setContentView(view);
         dialog.show();
-
 
     }
 
@@ -360,6 +368,7 @@ public class ComerciosFragment extends Fragment {
                         categoria=new Comercio_Categoria();
                     categoria.id_categoria=jcomercio.getJSONObject("categoria").getInt("id");
                     categoria.nombre=jcomercio.getJSONObject("categoria").getString("nombre");
+                    categoria.icono=jcomercio.getJSONObject("categoria").getString("icono");
                     categoria.save();
 
                     Comercio comercio=new Select().from(Comercio.class)

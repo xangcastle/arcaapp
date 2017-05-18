@@ -88,4 +88,9 @@ dependencies {
     testCompile 'junit:junit:4.12'
     apt 'org.androidannotations:androidannotations:4.0-SNAPSHOT'
     apt 'org.androidannotations:rest-spring:4.0-SNAPSHOT'
+
+
+    compile 'com.joanzapata.iconify:android-iconify-fontawesome:2.2.2' // (v4.5)
+
+
 }

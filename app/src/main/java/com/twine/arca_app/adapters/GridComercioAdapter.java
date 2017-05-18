@@ -81,7 +81,6 @@ public class GridComercioAdapter extends ArrayAdapter {
             return (Activity)cont;
         else if (cont instanceof ContextWrapper)
             return scanForActivity(((ContextWrapper)cont).getBaseContext());
-
         return null;
     }
     static class ViewHolder {

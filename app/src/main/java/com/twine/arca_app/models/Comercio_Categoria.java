@@ -4,6 +4,8 @@ import com.activeandroid.Model;
 import com.activeandroid.annotation.Column;
 import com.activeandroid.annotation.Table;
 
+import org.androidannotations.annotations.Click;
+
 /**
  * Created by TWINE-DELL on 26/3/2017.
  */
@@ -13,7 +15,8 @@ public class Comercio_Categoria extends Model {
     public int id_categoria;
     @Column(name = "nombre")
     public String nombre;
-
+    @Column(name = "icono")
+    public String icono;
 
 
 }
